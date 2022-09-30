@@ -8,3 +8,4 @@ use App\Http\Controllers\TagController;
 Route::get('/tags', TagController::class);
 
 Route::get('/offices', [OfficeController::class, 'index']);
+Route::get('/offices/{office}', [OfficeController::class, 'show']);
