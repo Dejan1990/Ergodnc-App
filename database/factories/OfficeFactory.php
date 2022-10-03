@@ -16,7 +16,7 @@ class OfficeFactory extends Factory
      *
      * @return array<string, mixed>
      */
-    public function definition()
+    public function definition(): array
     {
         return [
             'user_id' => User::factory(),
@@ -30,5 +30,32 @@ class OfficeFactory extends Factory
             'price_per_day' => $this->faker->numberBetween(1_000, 2_000),
             'monthly_discount' => 0
         ];
+    }
+
+    public function pending(): Factory
+    {
+        return $this->state(function () {
+            return [
+                'approval_status' => Office::APPROVAL_PENDING,
+            ];
+        });
+    }
+
+    public function rejected(): Factory
+    {
+        return $this->state(function () {
+            return [
+                'approval_status' => Office::APPROVAL_REJECTED,
+            ];
+        });
+    }
+
+    public function hidden(): Factory
+    {
+        return $this->state(function () {
+            return [
+                'hidden' => true,
+            ];
+        });
     }
 }

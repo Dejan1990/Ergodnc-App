@@ -36,8 +36,8 @@ class OfficeControllerTest extends TestCase
     {
         Office::factory(3)->create();
 
-        Office::factory()->create(['approval_status' => Office::APPROVAL_PENDING]);
-        Office::factory()->create(['hidden' => true]);
+        Office::factory()->pending()->create();
+        Office::factory()->hidden()->create();
 
         $response = $this->get('/api/offices');
         //dd($response->json('data'));
@@ -111,8 +111,8 @@ class OfficeControllerTest extends TestCase
     {
         $office = Office::factory()->create();
 
-        Reservation::factory(7)->for($office)->create(['status' => Reservation::STATUS_ACTIVE]);
-        Reservation::factory()->for($office)->create(['status' => Reservation::STATUS_CANCELLED]);
+        Reservation::factory(7)->for($office)->create();
+        Reservation::factory()->for($office)->cancelled()->create();
 
         $response = $this->get('/api/offices');
         //dd($response->json('data'));
@@ -164,8 +164,8 @@ class OfficeControllerTest extends TestCase
         $office->tags()->attach($tag);
         $office->images()->create(['path' => 'image.jpg']);
 
-        Reservation::factory(3)->for($office)->create(['status' => Reservation::STATUS_ACTIVE]);
-        Reservation::factory()->for($office)->create(['status' => Reservation::STATUS_CANCELLED]);
+        Reservation::factory(3)->for($office)->create();
+        Reservation::factory()->for($office)->cancelled()->create();
 
         $response = $this->get('/api/offices/'.$office->id);
 

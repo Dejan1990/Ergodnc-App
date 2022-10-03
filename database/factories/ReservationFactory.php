@@ -17,7 +17,7 @@ class ReservationFactory extends Factory
      *
      * @return array<string, mixed>
      */
-    public function definition()
+    public function definition(): array
     {
         return [
             'user_id' => User::factory(),
@@ -25,7 +25,16 @@ class ReservationFactory extends Factory
             'price' => $this->faker->numberBetween(10_000, 20_000),
             'status' => Reservation::STATUS_ACTIVE,
             'start_date' => now()->addDay(1)->format('Y-m-d'),
-            'end_date' => now()->addDay(5)->format('Y-m-d'),
+            'end_date' => now()->addDays(5)->format('Y-m-d'),
         ];
+    }
+
+    public function cancelled(): Factory
+    {
+        return $this->state(function () {
+            return [
+                'status' => Reservation::STATUS_CANCELLED,
+            ];
+        });
     }
 }
