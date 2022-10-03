@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Office;
 use App\Models\Reservation;
+use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use App\Http\Resources\OfficeResource;
-use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\Response;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class OfficeController extends Controller
@@ -21,10 +23,10 @@ class OfficeController extends Controller
         $offices = Office::query()
             ->where('approval_status', Office::APPROVAL_APPROVED)
             ->where('hidden', false)
-            ->when(request('host_id'), fn ($builder) => $builder->whereUserId(request('host_id')))
-            ->when(request('user_id'),
+            ->when(request('user_id'), fn ($builder) => $builder->whereUserId(request('user_id')))
+            ->when(request('visitor_id'),
                 fn ($builder) => 
-                    $builder->whereRelation('reservations', 'user_id', '=', request('user_id'))
+                    $builder->whereRelation('reservations', 'user_id', '=', request('visitor_id'))
             )
             ->when(request('lat') && request('lng'),
                 fn ($builder) => $builder->nearestTo(request('lat'), request('lng')),
@@ -43,9 +45,37 @@ class OfficeController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create(): JsonResource
     {
-        //
+        if (! auth()->user()->tokenCan('office.create')) {
+            abort(Response::HTTP_FORBIDDEN);
+        }
+
+        $attributes = validator(request()->all(),
+            [
+                'title' => ['required', 'string'],
+                'description' => ['required', 'string'],
+                'lat' => ['required', 'numeric'],
+                'lng' => ['required', 'numeric'],
+                'address_line1' => ['required', 'string'],
+                'hidden' => ['bool'],
+                'price_per_day' => ['required', 'integer', 'min:100'],
+                'monthly_discount' => ['integer', 'min:0', 'max:90'],
+
+                'tags' => ['array'],
+                'tags.*' => ['integer', Rule::exists('tags', 'id')]
+            ]
+        )->validate();
+
+        $attributes['approval_status'] = Office::APPROVAL_PENDING;
+
+        $office = auth()->user()->offices()->create(
+            Arr::except($attributes, ['tags'])
+        );
+
+        $office->tags()->sync($attributes['tags']);
+
+        return OfficeResource::make($office);
     }
 
     /**
