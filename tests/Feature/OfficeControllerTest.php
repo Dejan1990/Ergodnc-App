@@ -17,19 +17,16 @@ class OfficeControllerTest extends TestCase
     /** @test */
     public function itListsAllOfficesInPaginatedWay()
     {
-        Office::factory(3)->create();
+        Office::factory(30)->create();
 
         $response = $this->get('/api/offices');
 
         //dd($response->json('data'));
 
-        $response->assertOk();
-        $response->assertJsonCount(3, 'data');
-        //$this->assertCount(3, $response->json('data'));
-
-        $this->assertNotNull($response->json('data')[0]['id']);
-        $this->assertNotNull($response->json('meta'));
-        $this->assertNotNull($response->json('links'));
+        $response->assertOk()
+            ->assertJsonStructure(['data', 'meta', 'links'])
+            ->assertJsonCount(20, 'data')
+            ->assertJsonStructure(['data' => ['*' => ['id', 'title']]]);
     }
 
     /**
@@ -44,8 +41,8 @@ class OfficeControllerTest extends TestCase
 
         $response = $this->get('/api/offices');
         //dd($response->json('data'));
-        $response->assertOk();
-        $response->assertJsonCount(3, 'data');
+        $response->assertOk()
+            ->assertJsonCount(3, 'data');
     }
 
     /**
@@ -61,7 +58,8 @@ class OfficeControllerTest extends TestCase
         $response = $this->get('/api/offices?host_id=' . $host->id);
 
         $response->assertJsonCount(1, 'data');
-        $this->assertEquals($office->id, $response->json('data')[0]['id']);
+        //$this->assertEquals($office->id, $response->json('data')[0]['id']);
+        $response->assertJsonPath('data.0.id', $office->id);
     }
 
     /**
@@ -78,8 +76,10 @@ class OfficeControllerTest extends TestCase
         Reservation::factory()->for($office)->for($user)->create();
 
         $response = $this->get('/api/offices?user_id=' . $user->id);
-        $response->assertJsonCount(1, 'data');
-        $this->assertEquals($office->id, $response->json('data')[0]['id']);
+
+        $response->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.id', $office->id);
     }
 
     /**
@@ -88,7 +88,7 @@ class OfficeControllerTest extends TestCase
     public function itIncludesImagesTagsAndUser()
     {
         $user = User::factory()->create();
-        $tag = Tag::factory()->create();
+        $tag = Tag::factory(2)->create();
         $office = Office::factory()->for($user)->create();
 
         $office->tags()->attach($tag);
@@ -97,13 +97,11 @@ class OfficeControllerTest extends TestCase
         $response = $this->get('/api/offices');
         //dd($response->json('data'));
 
-        $response->assertOk();
-        $this->assertIsArray($response->json('data')[0]['tags']);
-        $this->assertCount(1, $response->json('data')[0]['tags']);
-        $this->assertIsArray($response->json('data')[0]['images']);
-        $this->assertCount(1, $response->json('data')[0]['images']);
-        //$this->assertEquals($user->id, $response->json('data')[0]['user']['id']);
-        $this->assertEquals($user->id, $response->json('data')[0]['user_id']);
+        $response->assertOk()
+            ->assertJsonCount(2, 'data.0.tags')
+            ->assertJsonCount(1, 'data.0.images')
+            //->assertJsonPath('data.0.user_id', $user->id)
+            ->assertJsonPath('data.0.user.id', $user->id);
     }
 
     /**
@@ -118,8 +116,10 @@ class OfficeControllerTest extends TestCase
 
         $response = $this->get('/api/offices');
         //dd($response->json('data'));
-        $response->assertOk();
-        $this->assertEquals(7, $response->json('data')[0]['reservations_count']);
+        $response->assertOk()
+            ->assertJsonPath('data.0.reservations_count', 7);
+
+        //$this->assertEquals(7, $response->json('data')[0]['reservations_count']);
     }
 
     /**
@@ -127,13 +127,13 @@ class OfficeControllerTest extends TestCase
      */
     public function itOrdersByDistanceWhenCoordinatesAreProvided()
     {
-        $office1 = Office::factory()->create([
+        Office::factory()->create([
             'lat' => '39.74051727562952',
             'lng' => '-8.770375324893696',
             'title' => 'Leiria'
         ]);
 
-        $office2 = Office::factory()->create([
+        Office::factory()->create([
             'lat' => '39.07753883078113',
             'lng' => '-9.281266331143293',
             'title' => 'Torres Vedras'
@@ -141,15 +141,15 @@ class OfficeControllerTest extends TestCase
 
         $response = $this->get('/api/offices?lat=38.720661384644046&lng=-9.16044783453807');
 
-        $response->assertOk();
-        $this->assertEquals('Torres Vedras', $response->json('data')[0]['title']);
-        $this->assertEquals('Leiria', $response->json('data')[1]['title']);
+        $response->assertOk()
+            ->assertJsonPath('data.0.title', 'Torres Vedras')
+            ->assertJsonPath('data.1.title', 'Leiria');
 
         $response = $this->get('/api/offices');
 
-        $response->assertOk();
-        $this->assertEquals('Leiria', $response->json('data')[0]['title']);
-        $this->assertEquals('Torres Vedras', $response->json('data')[1]['title']);
+        $response->assertOk()
+            ->assertJsonPath('data.0.title', 'Leiria')
+            ->assertJsonPath('data.1.title', 'Torres Vedras');
     }
 
     /**
@@ -169,13 +169,10 @@ class OfficeControllerTest extends TestCase
 
         $response = $this->get('/api/offices/'.$office->id);
 
-        $response->assertOk();
-        $this->assertEquals(3, $response->json('data')['reservations_count']);
-        $this->assertIsArray($response->json('data')['images']);
-        $this->assertCount(1, $response->json('data')['images']);
-        $this->assertIsArray($response->json('data')['tags']);
-        $this->assertCount(1, $response->json('data')['tags']);
-        //$this->assertEquals($user->id, $response->json('data')['user']['id']);
-        $this->assertEquals($user->id, $response->json('data')['user_id']);
+        $response->assertOk()
+            ->assertJsonPath('data.reservations_count', 3)
+            ->assertJsonPath('data.user.id', $user->id)
+            ->assertJsonCount(1, 'data.images')
+            ->assertJsonCount(1, 'data.tags');
     }
 }
