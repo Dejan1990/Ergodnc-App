@@ -89,11 +89,8 @@ class OfficeControllerTest extends TestCase
     public function itIncludesImagesTagsAndUser()
     {
         $user = User::factory()->create();
-        $tag = Tag::factory(2)->create();
-        $office = Office::factory()->for($user)->create();
 
-        $office->tags()->attach($tag);
-        $office->images()->create(['path' => 'image.jpg']);
+        Office::factory()->for($user)->hasTags(2)->hasImages(1)->create();
 
         $response = $this->get('/api/offices');
         //dd($response->json('data'));
@@ -159,22 +156,21 @@ class OfficeControllerTest extends TestCase
     public function itShowsTheOffice()
     {
         $user = User::factory()->create();
-        $tag = Tag::factory()->create();
-        $office = Office::factory()->for($user)->create();
 
-        $office->tags()->attach($tag);
-        $office->images()->create(['path' => 'image.jpg']);
+        $office = Office::factory()->for($user)->hasTags(2)->hasImages(3)->create();
 
         Reservation::factory(3)->for($office)->create();
         Reservation::factory()->for($office)->cancelled()->create();
 
         $response = $this->get('/api/offices/'.$office->id);
 
+        //dd($response->json('data'));
+
         $response->assertOk()
             ->assertJsonPath('data.reservations_count', 3)
             ->assertJsonPath('data.user.id', $user->id)
-            ->assertJsonCount(1, 'data.images')
-            ->assertJsonCount(1, 'data.tags');
+            ->assertJsonCount(3, 'data.images')
+            ->assertJsonCount(2, 'data.tags');
     }
     
     /**
