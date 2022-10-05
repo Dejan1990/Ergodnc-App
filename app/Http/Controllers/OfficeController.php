@@ -47,9 +47,10 @@ class OfficeController extends Controller
      */
     public function create(): JsonResource
     {
-        if (! auth()->user()->tokenCan('office.create')) {
-            abort(Response::HTTP_FORBIDDEN);
-        }
+        abort_unless(
+            auth()->user()->tokenCan('office.create'),
+            Response::HTTP_FORBIDDEN
+        );
 
         $attributes = validator(request()->all(),
             [
@@ -74,6 +75,8 @@ class OfficeController extends Controller
         );
 
         $office->tags()->sync($attributes['tags']);
+
+        $office->load(['images', 'tags', 'user']);
 
         return OfficeResource::make($office);
     }

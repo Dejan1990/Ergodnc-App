@@ -214,14 +214,27 @@ class OfficeControllerTest extends TestCase
      */
     public function itDoesntAllowCreatingIfScopeIsNotProvided()
     {
-        $user = User::factory()->create();
+        $user = User::factory()->createQuietly();
 
-        $token = $user->createToken('test', []);
+        //$token = $user->createToken('test', []);
+        Sanctum::actingAs($user, ['']);
 
-        $response = $this->postJson('/api/offices', [], [
-            'Authorization' => 'Bearer '.$token->plainTextToken
-        ]);
+        $response = $this->postJson('/api/offices');
 
         $response->assertStatus(403);
+    }
+
+    /**
+     * @test
+     */
+    public function itAllowsCreatingIfScopeIsProvided()
+    {
+        $user = User::factory()->createQuietly();
+
+        Sanctum::actingAs($user, ['office.create']);
+
+        $response = $this->postJson('/api/offices');
+
+        $this->assertNotEquals(403, $response->status());
     }
 }
