@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\Office;
 use App\Models\Reservation;
 use Laravel\Sanctum\Sanctum;
+use Illuminate\Http\Response;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -228,5 +229,50 @@ class OfficeControllerTest extends TestCase
 
         //$this->assertNotEquals(403, $response->status());
         $this->assertFalse($response->isForbidden());
+    }
+
+    /**
+     * @test
+     */
+    public function itUpdatesAnOffice()
+    {
+        $user = User::factory()->create();
+        $tags = Tag::factory(3)->create();
+        $office = Office::factory()->for($user)->create();
+
+        $office->tags()->attach($tags);
+
+        $anotherTag = Tag::factory()->create();
+
+        Sanctum::actingAs($user, ['office.update']);
+
+        $response = $this->putJson('/api/offices/' . $office->id, Office::factory()->raw([
+            'title' => 'Another title',
+            'tags' => [$tags[0]->id, $anotherTag->id]
+        ]));
+
+        //dd($response->json('data'));
+
+        $response->assertOk()
+            ->assertJsonCount(2, 'data.tags')
+            ->assertJsonPath('data.title', 'Another title')
+            ->assertJsonPath('data.tags.0.id', $tags[0]->id)
+            ->assertJsonPath('data.tags.1.id', $anotherTag->id);
+    }
+
+    /**
+     * @test
+     */
+    public function itDoesntUpdateOfficeThatDoesntBelongToUser()
+    {
+        $user = User::factory()->create();
+        $anotherUser = User::factory()->create();
+        $office = Office::factory()->for($anotherUser)->create();
+
+        Sanctum::actingAs($user, ['office.update']);
+
+        $response = $this->putJson('/api/offices/' . $office->id, Office::factory()->raw());
+
+        $response->assertStatus(Response::HTTP_FORBIDDEN);
     }
 }
