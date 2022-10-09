@@ -179,7 +179,7 @@ class OfficeControllerTest extends TestCase
     {
         Notification::fake();
 
-        $admin = User::factory()->create(['name' => 'Dejan']);
+        $admin = User::factory()->create(['is_admin' => true]);
 
         $user = User::factory()->create();
         $tags = Tag::factory(2)->create();
@@ -285,7 +285,7 @@ class OfficeControllerTest extends TestCase
      */
     public function itMarksTheOfficeAsPendingIfDirty()
     {
-        $admin = User::factory()->create(['name' => 'Dejan']);
+        $admin = User::factory()->create(['is_admin' => true]);
 
         Notification::fake();
 
