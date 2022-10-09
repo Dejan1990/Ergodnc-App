@@ -52,6 +52,26 @@ class OfficeControllerTest extends TestCase
     /**
      * @test
      */
+    public function itListsOfficesIncludingHiddenAndUnApprovedIfFilteringForTheCurrentLoggedInUser()
+    {
+        $user = User::factory()->create();
+
+        Office::factory(3)->for($user)->create();
+
+        Office::factory()->hidden()->for($user)->create();
+        Office::factory()->pending()->for($user)->create();
+
+        $this->actingAs($user);
+
+        $response = $this->get('/api/offices?user_id='.$user->id);
+
+        $response->assertOk()
+            ->assertJsonCount(5, 'data');
+    }
+
+    /**
+     * @test
+     */
     public function itFiltersByUserId()
     {
         Office::factory(3)->create();
@@ -345,5 +365,50 @@ class OfficeControllerTest extends TestCase
             'id' => $office->id,
             'deleted_at' => null
         ]);
+    }
+
+    /**
+     * @test
+     */
+    public function itUpdatedTheFeaturedImageOfAnOffice()
+    {
+        $user = User::factory()->create();
+        $office = Office::factory()->for($user)->create();
+
+        $image = $office->images()->create([
+            'path' => 'image.jpg'
+        ]);
+
+        Sanctum::actingAs($user, ['office.update']);
+
+        $response = $this->putJson('/api/offices/'.$office->id, [
+            'featured_image_id' => $image->id,
+        ]);
+
+        $response->assertOk()
+            ->assertJsonPath('data.featured_image_id', $image->id);
+    }
+
+    /**
+     * @test
+     */
+    public function itDoesntUpdateFeaturedImageThatBelongsToAnotherOffice()
+    {
+        $user = User::factory()->create();
+        $office = Office::factory()->for($user)->create();
+        $office2 = Office::factory()->for($user)->create();
+
+        $image = $office2->images()->create([
+            'path' => 'image.jpg'
+        ]);
+
+        Sanctum::actingAs($user, ['office.update']);
+
+        $response = $this->putJson('/api/offices/'.$office->id, [
+            'featured_image_id' => $image->id,
+        ]);
+
+        $response->assertUnprocessable()
+            ->assertInvalid('featured_image_id');
     }
 }
