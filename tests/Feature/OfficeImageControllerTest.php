@@ -25,7 +25,7 @@ class OfficeImageControllerTest extends TestCase
         $user = User::factory()->create();
         $office = Office::factory()->for($user)->create();
 
-        $this->actingAs($user);
+        Sanctum::actingAs($user, ['office.update']);
 
         $response = $this->post("/api/offices/{$office->id}/images", [
             'image' => UploadedFile::fake()->image('image.jpg')

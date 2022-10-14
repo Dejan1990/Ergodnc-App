@@ -62,7 +62,7 @@ class OfficeControllerTest extends TestCase
         Office::factory()->hidden()->for($user)->create();
         Office::factory()->pending()->for($user)->create();
 
-        $this->actingAs($user);
+        Sanctum::actingAs($user, ['*']);
 
         $response = $this->get('/api/offices?user_id='.$user->id);
 
@@ -313,7 +313,7 @@ class OfficeControllerTest extends TestCase
         $user = User::factory()->create();
         $office = Office::factory()->for($user)->create();
 
-        $this->actingAs($user);
+        Sanctum::actingAs($user, ['*']);
 
         $response = $this->putJson('/api/offices/' . $office->id, [
             'lat' => 40.74051727562952
