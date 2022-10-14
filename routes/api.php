@@ -5,6 +5,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\OfficeImageController;
+use App\Http\Controllers\UserReservationController;
 
 Route::get('/tags', TagController::class);
 
@@ -16,4 +17,7 @@ Route::delete('/offices/{office}', [OfficeController::class, 'delete'])->middlew
 
 // Office Photos...
 Route::post('/offices/{office}/images', [OfficeImageController::class, 'store'])->middleware(['auth:sanctum', 'verified']);
-Route::delete('/offices/{office}/images/{image}', [OfficeImageController::class, 'delete'])->middleware(['auth:sanctum', 'verified']);
+Route::delete('/offices/{office}/images/{image:id}', [OfficeImageController::class, 'delete'])->middleware(['auth:sanctum', 'verified']);
+
+// User Reservations...
+Route::get('/reservations', [UserReservationController::class, 'index'])->middleware(['auth:sanctum', 'verified']);
