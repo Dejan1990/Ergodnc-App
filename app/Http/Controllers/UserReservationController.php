@@ -52,7 +52,8 @@ class UserReservationController extends Controller
 
         validator(request()->all(), [
             'office_id' => ['required', 'integer'],
-            'start_date' => ['required', 'date:Y-m-d', 'after:'.now()->addDay()->toDateString()],
+            'start_date' => ['required', 'date:Y-m-d', 'after:today'],
+            //'start_date' => ['required', 'date:Y-m-d', 'after:'.now()->addDay()->toDateString()],
             'end_date' => ['required', 'date:Y-m-d', 'after:start_date'],
         ]);
 
@@ -66,18 +67,18 @@ class UserReservationController extends Controller
 
         if ($office->user_id == auth()->id()) {
             throw ValidationException::withMessages([
-                'office_id' => 'you cannot make a reservation on your own office'
+                'office_id' => 'You cannot make a reservation on your own office'
             ]);
         }
 
         $reservation = Cache::lock('reservations_office_'.$office->id, 10)->block(3, function () use ($office) {
             $numberOfDays = Carbon::parse(request('end_date'))->endOfDay()->diffInDays(
                 Carbon::parse(request('start_date'))->startOfDay()
-            );
+            ) + 1;
 
             if ($numberOfDays < 2) {
                 throw ValidationException::withMessages([
-                    'office_id' => 'You cannot make a reservation for only 1 day'
+                    'start_date' => 'You cannot make a reservation for only 1 day'
                 ]);
             }
 
