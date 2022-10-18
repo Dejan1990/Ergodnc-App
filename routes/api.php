@@ -2,11 +2,13 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\TagController;
-use App\Http\Controllers\OfficeController;
-use App\Http\Controllers\OfficeImageController;
-use App\Http\Controllers\HostReservationController;
-use App\Http\Controllers\UserReservationController;
+use App\Http\Controllers\{
+    TagController,
+    OfficeController,
+    OfficeImageController,
+    HostReservationController,
+    UserReservationController
+};
 
 Route::get('/tags', TagController::class);
 
