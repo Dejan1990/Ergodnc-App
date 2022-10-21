@@ -14,7 +14,7 @@ class TagsControllerTest extends TestCase
 
     public function itListsTags()
     {
-        $response = $this->get('/api/tags');
+        $response = $this->get('/tags');
 
         //dd($response->json('data'));
 

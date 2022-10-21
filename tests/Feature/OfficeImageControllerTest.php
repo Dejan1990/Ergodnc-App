@@ -27,7 +27,7 @@ class OfficeImageControllerTest extends TestCase
 
         Sanctum::actingAs($user, ['office.update']);
 
-        $response = $this->post("/api/offices/{$office->id}/images", [
+        $response = $this->post("/offices/{$office->id}/images", [
             'image' => UploadedFile::fake()->image('image.jpg')
         ]);
 
@@ -59,7 +59,7 @@ class OfficeImageControllerTest extends TestCase
 
         Sanctum::actingAs($user, ['office.delete']);
 
-        $response = $this->deleteJson("/api/offices/{$office->id}/images/{$image->id}");
+        $response = $this->deleteJson("/offices/{$office->id}/images/{$image->id}");
 
         $response->assertOk();
 
@@ -83,7 +83,7 @@ class OfficeImageControllerTest extends TestCase
 
         Sanctum::actingAs($user, ['office.delete']);
 
-        $response = $this->deleteJson("/api/offices/{$office->id}/images/{$image->id}");
+        $response = $this->deleteJson("/offices/{$office->id}/images/{$image->id}");
 
         //$response->assertUnprocessable();
         //$response->assertJsonValidationErrors(['image' => 'Cannot delete this image.']);
@@ -104,7 +104,7 @@ class OfficeImageControllerTest extends TestCase
 
         Sanctum::actingAs($user, ['office.delete']);
 
-        $response = $this->deleteJson("/api/offices/{$office->id}/images/{$image->id}");
+        $response = $this->deleteJson("/offices/{$office->id}/images/{$image->id}");
 
         $response->assertUnprocessable();
 
@@ -131,7 +131,7 @@ class OfficeImageControllerTest extends TestCase
 
         Sanctum::actingAs($user, ['office.delete']);
 
-        $response = $this->deleteJson("/api/offices/{$office->id}/images/{$image->id}");
+        $response = $this->deleteJson("/offices/{$office->id}/images/{$image->id}");
 
         $response->assertUnprocessable();
 
