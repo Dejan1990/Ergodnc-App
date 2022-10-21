@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\{
+    UserController,
     TagController,
     OfficeController,
     OfficeImageController,
@@ -11,6 +12,9 @@ use App\Http\Controllers\{
 };
 
 Route::get('/tags', TagController::class);
+
+// User ...
+Route::get('/user', UserController::class)->middleware(['auth:sanctum']);
 
 Route::get('/offices', [OfficeController::class, 'index']);
 Route::get('/offices/{office}', [OfficeController::class, 'show']);
@@ -27,4 +31,5 @@ Route::get('/reservations', [UserReservationController::class, 'index'])->middle
 Route::post('/reservations', [UserReservationController::class, 'create'])->middleware(['auth:sanctum', 'verified']);
 Route::delete('/reservations/{reservation}', [UserReservationController::class, 'cancel'])->middleware(['auth:sanctum', 'verified']);
 
+// Host Reservations...
 Route::get('/host/reservations', [HostReservationController::class, 'index']);
