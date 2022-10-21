@@ -2,19 +2,20 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use App\Models\Office;
 use App\Models\Reservation;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Validation\Rule;
-use App\Http\Resources\ReservationResource;
+use Illuminate\Support\Facades\Cache;
 use App\Notifications\NewHostReservation;
 use App\Notifications\NewUserReservation;
-use Carbon\Carbon;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Support\Facades\Cache;
+use App\Http\Resources\ReservationResource;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class UserReservationController extends Controller
 {
@@ -101,6 +102,7 @@ class UserReservationController extends Controller
                 'end_date' => $data['end_date'],
                 'status' => Reservation::STATUS_ACTIVE,
                 'price' => $price,
+                'wifi_password' => Str::random()
             ]);
         });
 
@@ -108,5 +110,28 @@ class UserReservationController extends Controller
         Notification::send($office->user, new NewHostReservation($reservation));
 
         return ReservationResource::make($reservation->load('office'));
+    }
+
+    public function cancel (Reservation $reservation)
+    {
+        abort_unless(auth()->user()->tokenCan('reservations.cancel'),
+            Response::HTTP_FORBIDDEN
+        );
+
+        if ($reservation->user_id != auth()->id() ||
+            $reservation->status == Reservation::STATUS_CANCELLED ||
+            $reservation->start_date < now()->toDateString()) {
+            throw ValidationException::withMessages([
+                'reservation' => 'You cannot cancel this reservation'
+            ]);
+        }
+
+        $reservation->update([
+            'status' => Reservation::STATUS_CANCELLED
+        ]);
+
+        return ReservationResource::make(
+            $reservation->load('office')
+        );
     }
 }
