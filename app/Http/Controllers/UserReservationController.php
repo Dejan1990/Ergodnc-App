@@ -8,9 +8,12 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Validation\Rule;
 use App\Http\Resources\ReservationResource;
+use App\Notifications\NewHostReservation;
+use App\Notifications\NewUserReservation;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Validation\ValidationException;
 
 class UserReservationController extends Controller
@@ -100,6 +103,9 @@ class UserReservationController extends Controller
                 'price' => $price,
             ]);
         });
+
+        Notification::send(auth()->user(), new NewUserReservation($reservation));
+        Notification::send($office->user, new NewHostReservation($reservation));
 
         return ReservationResource::make($reservation->load('office'));
     }
