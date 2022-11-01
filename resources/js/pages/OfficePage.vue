@@ -12,19 +12,17 @@
       <p class="leading-loose mb-5">
         {{ office.description }}
       </p>
-      <button
-            type="button"
-            class="rounded inline-flex items-center px-4 py-2 bg-purple-700 border border-transparent font-semibold text-xs text-white uppercase tracking-widest hover:bg-purple-800 active:bg-purple-900 focus:outline-none focus:border-purple-900 focus:ring ring-purple-300 disabled:opacity-25 transition ease-in-out duration-150"
-      >
-        Book
-      </button>
+      <ButtonComponent class="mt-7">Book</ButtonComponent>
     </div>
   </div>
 </template>
 
 <script>
+import ButtonComponent from '@/components/ButtonComponent.vue';
 
 export default {
+  components: {ButtonComponent},
+  
   data: () => ({
     office: {
       "images": [

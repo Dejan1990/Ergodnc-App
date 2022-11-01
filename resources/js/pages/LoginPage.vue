@@ -1,27 +1,17 @@
 <template>
   <div class="w-1/2 mx-auto bg-white p-5 rounded-lg">
-    <div v-if="errors.length">
-        <div class="font-medium text-red-600">
-            Whoops! Something went wrong.
-        </div>
 
-        <ul class="mt-3 list-disc list-inside text-sm text-red-600">
-            <li v-for="(error, i) in errors" :key="i">{error}</li>
-        </ul>
-  </div>
+    <ErrorsComponent class="mb-5" :errors="errors"></ErrorsComponent>
 
     <form autoComplete="off">
       <div>
-        <label
-            class="block text-gray-700">
-            Email
-        </label>
+        <LabelComponent>Email</LabelComponent>
 
-        <input
+        <InputComponent
           id="email"
           v-model="email"
           type="email"
-          class="block mt-1 w-full outline-none border rounded border-gray-200 h-10 px-2"
+          class="block mt-1 w-full"
           required
           auto-focus
           auto-complete="off"
@@ -29,16 +19,13 @@
       </div>
 
       <div class="mt-4">
-        <label
-            class="block text-gray-700">
-            Password
-        </label>
+        <LabelComponent>Password</LabelComponent>
 
-        <input
+        <InputComponent
           id="password"
           v-model="password"
           type="password"
-          class="block mt-1 w-full outline-none border rounded border-gray-200 h-10 px-2"
+          class="block mt-1 w-full"
           required
           auto-complete="current-password"
         />
@@ -65,26 +52,38 @@
           Forgot your password?
         </router-link>
 
-        <button
-            type="button"
-            class="rounded inline-flex items-center px-4 py-2 bg-purple-700 border border-transparent font-semibold text-xs text-white uppercase tracking-widest hover:bg-purple-800 active:bg-purple-900 focus:outline-none focus:border-purple-900 focus:ring ring-purple-300 disabled:opacity-25 transition ease-in-out duration-150"
-            @click="submitform()"
-      >
-        Login
-      </button>
+        <ButtonComponent 
+          class="ml-3"
+          @click="submitForm()"
+        >
+          Login
+        </ButtonComponent>
       </div>
     </form>
   </div>
 </template>
 
 <script>
+import ButtonComponent from '@/components/ButtonComponent.vue';
+import ErrorsComponent from '@/components/ErrorsComponent.vue';
+import LabelComponent from '@/components/LabelComponent.vue';
+import InputComponent from '@/components/InputComponent.vue';
+
 export default {
+  components: {
+    ButtonComponent, 
+    ErrorsComponent,
+    LabelComponent,
+    InputComponent
+  },
+
   data: () => ({
     errors: [],
     email: '',
     password: '',
     remember: false
   }),
+
   methods: {
     submitForm(event) {
       event.preventDefault()
