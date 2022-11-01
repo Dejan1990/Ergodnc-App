@@ -1,11 +1,15 @@
 import {createRouter, createWebHistory} from "vue-router";
-import HomeComponent from '../pages/HomeComponent.vue';
+import IndexPage from '../pages/IndexPage.vue';
+import DefaultLayout from '../layouts/DefaultLayout.vue';
 
 const routes = [
     {
         path: '/',
-        name: 'Home',
-        component: HomeComponent
+        redirect: '/',
+        component: DefaultLayout,
+        children: [
+            {path: '/', name: 'Index', component: IndexPage},
+        ]
     }
 ]
 
