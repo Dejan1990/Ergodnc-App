@@ -17,9 +17,12 @@
                 <p class="leading-loose mb-5">
                     {{ office.description }}
                 </p>
-                <a href="#" class="text-purple-600 font-bold">
+                <router-link 
+                    :to="{name: 'Office', params: {id: office.id} }"
+                    class="text-purple-600 font-bold"
+                >
                     More details...
-                </a>
+                </router-link>
             </div>
         </div>
     </div>
