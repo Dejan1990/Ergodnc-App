@@ -1,5 +1,5 @@
 import {createRouter, createWebHistory} from "vue-router";
-import IndexPage from '../pages/IndexPage.vue';
+import OfficesPage from '../pages/OfficesPage.vue';
 import DefaultLayout from '../layouts/DefaultLayout.vue';
 
 const routes = [
@@ -8,7 +8,7 @@ const routes = [
         redirect: '/',
         component: DefaultLayout,
         children: [
-            {path: '/', name: 'Index', component: IndexPage},
+            {path: '/', name: 'Offices', component: OfficesPage},
         ]
     }
 ]
