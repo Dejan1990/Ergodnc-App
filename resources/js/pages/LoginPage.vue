@@ -3,7 +3,7 @@
 
     <ErrorsComponent class="mb-5" :errors="errors"></ErrorsComponent>
 
-    <form autoComplete="off">
+    <form autoComplete="off" @submit.prevent="submitForm()">
       <div>
         <LabelComponent>Email</LabelComponent>
 
@@ -52,12 +52,7 @@
           Forgot your password?
         </router-link>
 
-        <ButtonComponent 
-          class="ml-3"
-          @click="submitForm()"
-        >
-          Login
-        </ButtonComponent>
+        <ButtonComponent class="ml-3">Login</ButtonComponent>
       </div>
     </form>
   </div>
