@@ -6,7 +6,7 @@
             :class="`flex ${index + 1 == offices.length ? '' : 'pb-10 mb-10 border-b'}`"
         >
             <div class="w-1/3 h-56 relative overflow-hidden rounded-lg">
-                <img :src="office.images[0].path" class="object-cover w-full h-full" />
+                <img :src="office.images[0].path" class="object-cover w-full h-full">
             </div>
 
             <div class="w-full pl-14">
@@ -31,42 +31,24 @@
 export default {
     data() {
         return {
-            offices: [
-            {
-                "images": [
-                {
-                    "path": "https://via.placeholder.com/400x400.png?text=PLACEHOLDER",
-                }
-                ],
-                "id": 1,
-                "title": "Office One",
-                "description": "Architecto assumenda cum eum. Voluptas qui dignissimos qui voluptate. Mollitia necessitatibus ut sit. Et saepe ea quo nulla.",
-                "price_per_day": 1000,
-            },
-            {
-                "images": [
-                {
-                    "path": "https://via.placeholder.com/400x400.png?text=PLACEHOLDER",
-                }
-                ],
-                "id": 2,
-                "title": "Dickenston",
-                "description": "Sit nesciunt sit a perspiciatis quas eligendi. Maxime ipsum aut nihil. Totam omnis et laudantium ut dolorum soluta.",
-                "price_per_day": 1300,
-            },
-            {
-                "images": [
-                {
-                    "path": "https://via.placeholder.com/400x400.png?text=PLACEHOLDER",
-                }
-                ],
-                "id": 3,
-                "title": "East Katlynnton",
-                "description": "Quia voluptatem amet quo minus. Repudiandae sed beatae veritatis. Error quos quia qui pariatur perferendis beatae occaecati.",
-                "price_per_day": 2100,
-            }
-            ]
+            offices: []
         }
-    }
+    },
+    
+    created() {
+        this.fetch()
+    },
+
+    methods: {
+        fetch () {
+            axios.get('/offices')
+                .then(res => {
+                    this.offices = res.data.data
+                })
+                .catch(err => {
+                    console.log(err)
+                })
+        }
+    },
 }
 </script>
